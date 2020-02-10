@@ -1,0 +1,101 @@
+addpath('C:\Users\g.tec\Downloads');
+addpath('C:\Users\g.tec\Desktop');
+%%
+set(0, 'DefaultAxesColor' , 'white')
+position_data1 = smoothdata(AB01SS0Report1 (1:end,2:4));
+[coeff, score, latent, tsq, explained] = pca(position_data1);
+%figure,plot(score(:,1),score(:,2),'linewidth',1.5)
+subplot (3,1,1);
+
+plot(score(:,1),score(:,2),'linewidth',1.5)
+xlim([-0.6 0.6])
+ylim([-0.4 0.4])
+title ({'Trajectory for point-to-point octane', '  '});
+ylabel ('y-coordinate (m) '); xlabel ('x-coordinate (m) '); 
+pbaspect([1 1 1])
+clear xlabel
+clear ylabel
+
+subplot (3,1,2);
+position_data1 = smoothdata(AB01SC0Report1 (1:end,2:4));
+[coeff, score, latent, tsq, explained] = pca(position_data1);
+
+plot(score(:,1),score(:,2),'linewidth',1.5)
+xlim([-0.6 0.6])
+ylim([-0.4 0.4])
+title ({'Trajectory for point-to-point circle','  '});
+xlabel ('x-coordinate (m)'); ylabel ('y-coordinate (m)');
+pbaspect([1 1 1])
+clear xlabel
+clear ylabel
+
+subplot (3,1,3);
+position_data1 = smoothdata(AB01G10Report1 (1:end,2:4));
+[coeff, score, latent, tsq, explained] = pca(position_data1);
+
+plot(score(:,1),score(:,2),'linewidth',1.5)
+xlim([-0.6 0.6])
+ylim([-0.6 0.6])
+title({'Trajectory for point-to-point random', '  '});
+xlabel ('x-coordinate (m)');
+ylabel ('y-coordinate (m)');
+pbaspect([1 1 1])
+clear xlabel
+clear ylabel
+
+%%
+% ABXYZ1 = smoothdata(AB01SS0Report1 (1:end,2:4));
+% ABXYZ2 = smoothdata(AB01SS30Report1 (1:end,2:4));
+% % subplot star inclined;
+% subplot (3,2,2);
+% 
+% plot3(ABXYZ1(:,1),ABXYZ1(:,2),ABXYZ1(:,3), 'linewidth',1.5);
+% title('Trajectory for point-to-point octane at 0 and 30 degree');
+% xlabel ('position in x-axis in metre')
+% ylabel =('position in y-axis in metres')
+% zlabel = ('position in z-axis in metres')
+% hold on
+% plot3(ABXYZ2(:,1),ABXYZ2(:,2),ABXYZ2(:,3), 'linewidth',1.5)
+% xlabel ('position in x-axis in metre');
+% %ylabel =('position in y-axis in metres');
+% zlabel = ('position in z-axis in metres');
+% legend('Inclination 0 degrees','Inclination 30degrees')
+% clear xlabel
+% clear ylabel
+% 
+% %%
+% ABXYZ1 = smoothdata(AB01SC0Report1 (1:end,2:4));
+% ABXYZ2 = smoothdata(AB01SC30Report1 (1:end,2:4));
+% % subplot star inclined;
+% subplot (3,2,4);
+% 
+% plot3(ABXYZ1(:,1),ABXYZ1(:,2),ABXYZ1(:,3), 'linewidth',1.5);
+% title('Trajectory for point-to-point circle at 0 and 30 degree');
+% hold on
+% plot3(ABXYZ2(:,1),ABXYZ2(:,2),ABXYZ2(:,3), 'linewidth',1.5)
+% legend('Inclination 0 degrees','Inclination 30degrees')
+% xlabel ('position in x-axis in metre');
+% ylabel =('position in y-axis in metres');
+% zlabel = ('Z');
+% clear xlabel
+% clear ylabel
+% 
+% %%
+% ABXYZ1 = smoothdata(AB01G10Report1 (1:end,2:4));
+% ABXYZ2 = smoothdata(AB01G115Report1 (1:end,2:4));
+% ABXYZ3 = smoothdata(AB01G130Report1 (1:end,2:4));
+% % subplot star inclined;
+% subplot (3,2,6);
+% 
+% plot3(ABXYZ1(:,1),ABXYZ1(:,2),ABXYZ1(:,3), 'linewidth',1.5);
+% hold on
+% plot3(ABXYZ2(:,1),ABXYZ2(:,2),ABXYZ2(:,3), 'linewidth',1.5);
+% hold on
+% plot3(ABXYZ3(:,1),ABXYZ3(:,2),ABXYZ3(:,3), 'linewidth',1.5)
+% title('Trajectory for point-to-point random at 0, 15 and 30 degree');
+% legend('Inclination 0 degrees','Inclination 15degrees', 'Inclination 30 degrees')
+% xlabel ('position in x-axis in metre');
+% ylabel =('position in y-axis in metres');
+% zlabel = ('position in z-axis in metres');
+% clear xlabel
+% clear ylabel
