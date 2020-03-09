@@ -1,0 +1,53 @@
+# Inv-kinematics-Biomachanical-
+clc; clear all; close all
+fs=1200;
+addpath('C:\Users\USER\Downloads\Thesis data\g.tec')
+addpath('C:\Users\USER\Downloads\Thesis data\polhemus')
+polhemus_position=readmatrix('AB_13_SS_30 - Report1.txt');
+X = smoothdata(polhemus_position(:,4),'gaussian',1200);
+Y = smoothdata(polhemus_position(:,5),'gaussian',1200);
+Z = smoothdata(polhemus_position(:,6),'gaussian',1200);
+A= polhemus_position(:,4);
+
+t = 0:1/fs:length(X)/fs -1/fs;
+feq= 1./t;
+%t= polhemus_position(:,1);
+% pos = rand(100,1) ;
+% t = 1:100 ;
+p = abs(fft(A(1:end-1)));
+
+
+v1 = zeros(length(t)-1,1) ;
+for i = 1:length(t)-1
+    v1(i) = (X(i+1)-X(i))/(t(i+1)-t(i)) ;
+end
+v2 = zeros(length(t)-1,1) ;
+for i = 1:length(t)-1
+    v2(i) = (Y(i+1)-Y(i))/(t(i+1)-t(i)) ;
+end
+v3 = zeros(length(t)-1,1) ;
+for i = 1:length(t)-1
+    v3(i) = (Z(i+1)-Z(i))/(t(i+1)-t(i)) ;
+end
+figure,plot(t(1:end-1),v1')
+title('velocity')
+xlabel ('(TIME(s))');
+ylabel ('(m/s)');
+figure,plot(t(1:end-1),v2')
+title('velocity')
+xlabel ('(TIME(s))');
+ylabel ('(m/s)');
+figure,plot(t(1:end-1),v3')
+title('velocity')
+xlabel ('(TIME(s))');
+ylabel ('(m/s)');
+figure,plot3(v1,v2,v3)
+title('velocity 3-D')
+xlabel('X-axis (m/s)')
+ylabel('Y-axis (m/s)')
+zlabel('Z-axis (m/s)')
+figure, plot(feq(1:end-1),p')
+% z=diff(X);
+% figure,plot(z)
+% k= gradient(X);
+% figure, plot(k)
