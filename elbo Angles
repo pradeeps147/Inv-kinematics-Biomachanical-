@@ -1,0 +1,49 @@
+# Inv-kinematics-Biomachanical-
+clc; clear all; close all
+fs=1200;
+addpath('C:\Users\USER\Downloads\Thesis data\g.tec')
+addpath('C:\Users\USER\Downloads\Thesis data\polhemus')
+polhemus_position=readmatrix('AB_13_SS_30 - Report1');
+X=smoothdata(polhemus_position(:,22:24)- polhemus_position(:,19:21),'gaussian',1200);
+Y=smoothdata(polhemus_position(:,16:18)- polhemus_position(:,19:21),'gaussian',1200);
+t=polhemus_position(:,3);
+% [coeff, score, latent, tsq, explained] = pca(X);
+% [coeff1, score1, latent, tsq, explained] = pca(Y);
+% A= polhemus_position(:,15:16)
+% B =polhemus_position(:,6:7);
+% C=(polhemus_position(:,9:10);
+% fuction [vector]=calculate_vector(A,B)
+%       vector= B-A;
+%  end 
+% speed=(polhemus_position(:,3))/(polhemus_position(:,2));
+% thetaRadian=atan2(score(:,1),score1(:,1));
+% degree=(180/pi).*thetaRadian;
+% figure,plot(degree)
+% hold on, plot(thetaRadian)
+
+% figure,
+% plot(speed)
+% xlabel ('(time)');
+% ylabel ('(m/s)');
+
+nrmX=zeros(length(X),1);
+for i=1:length(X)
+    nrmX(i) = norm(X(i,:));
+end
+
+nrmY=zeros(length(Y),1);
+for i=1:length(Y)
+    nrmY(i) = norm(Y(i,:));
+end
+
+dotXY=zeros(length(Y),1);
+for i=1:length(Y)
+    dotXY(i) = dot(X(i,:),Y(i,:));
+end
+
+nrmXY=nrmX.*nrmY;
+theta = acosd(dotXY./nrmXY);
+figure, plot(t,(theta))
+title('ELBOW ANGLES')
+xlabel ('(s)');
+ylabel ('(degree)');
