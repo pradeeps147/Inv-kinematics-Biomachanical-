@@ -1,0 +1,39 @@
+# Inv-kinematics-Biomachanical-
+fs=1200;
+% load enso
+% load skyline 
+% f = fit(month,pressure,'smoothingspline');
+% plot(f,month,pressure)
+addpath('C:\Users\USER\Downloads\Thesis data\g.tec')
+addpath('C:\Users\USER\Downloads\Thesis data\polhemus')
+polhemus_position=readmatrix('AB_12_SS_0 - Report1.txt');
+%smooth=smoothdata(polhemus_position(:,2),5);
+figure, plot3(polhemus_position(:,2),polhemus_position(:,3),polhemus_position(:,4))
+title({'Trajectory for point-to-point random', ' unsmooth '});
+xlabel ('x-coordinate (m)');
+ylabel ('y-coordinate (m)');
+zlabel ('z-coordinate (m)');
+
+s1 = smoothdata(polhemus_position(:,2), 'gaussian',100) ;
+s2 = smoothdata(polhemus_position(:,3), 'gaussian',100);
+s3 = smoothdata(polhemus_position(:,4), 'gaussian',100);
+
+% xlabel,ylabel,zlabel
+figure,  plot3(s1,s2,s3);
+title({'Trajectory for point-to-point random', 'smooth'});
+xlabel ('x-coordinate (m)');
+ylabel ('y-coordinate (m)');
+zlabel ('z-coordinate (m)');
+s4 = smoothdata(polhemus_position(:,5), 'gaussian',100);
+s5 = smoothdata(polhemus_position(:,6), 'gaussian',100);
+s6 = smoothdata(polhemus_position(:,7), 'gaussian',100);
+
+% xlabel,ylabel,zlabel
+figure,  plot3(s4,s5,s6);
+title({'Trajectory for point-to-point random', 'smoothed'});
+xlabel ('x-coordinate (m)');
+ylabel ('y-coordinate (m)');
+zlabel ('z-coordinate (m)');
+
+% position_data1 = smoothdata(polhemus_position(1:end,:),'gaussian',100);
+% writematrix(position_data1,'ab_12_g1_30.txt','Delimiter','\t');
