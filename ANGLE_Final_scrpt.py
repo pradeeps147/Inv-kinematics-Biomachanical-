@@ -1,53 +1,37 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jun 18 16:53:34 2020
+Created on Fri Jun 19 19:07:45 2020
 
 @author: asus
 """
-# importing the necessory libraries
-import os
-import pandas as pd
-import csv
+
+import pandas as pd 
 import numpy as np
 from numpy import diff
-import  matplotlib.pyplot as plt
-import scipy
-from scipy import signal
-from scipy.fftpack import fft, fftshift
-from scipy.signal import wiener, filtfilt, butter, gaussian, freqz,medfilt
+import matplotlib.pyplot as plt
+import os
+import csv
 from scipy.ndimage import filters
-from sklearn.decomposition import PCA
-from sklearn.decomposition import PCA as sklearnPCA
-from sklearn import preprocessing
-from sklearn import decomposition
-from sklearn.preprocessing import StandardScaler
+from scipy.signal import wiener, filtfilt, butter, gaussian, freqz,medfilt
+import vg
 
 
-# defining the functions
-#cutting the data according to the trigger
 class MyList(list):
     def __init__(self, *args):
         list.__init__(self, *args)
     def indices(self, filtr=lambda x: bool(x)):
         return [i for i,x in enumerate(self) if filtr(x)]
-# implementing the filter on position data   
-def TestMedian(A,B,C,fs):
-    M1=scipy.signal.medfilt(A, 301)
-    M2=scipy.signal.medfilt(B, 301)
-    M3=scipy.signal.medfilt(C, 301)
-    return M1,M2,M3
+    
+def testGaussian3(A):
+    b = gaussian(150, 25)
+    gaV1 = filters.convolve1d(A , b/b.sum())
+    #gaV2 = filters.convolve1d(B, b/b.sum())
+    #gaV3 = filters.convolve1d(C, b/b.sum())
+    #print(ga)
+    #plt.plot(t, ga)
+    return gaV1#,gaV2,gaV3
 
-# applying the PCA to reduce the dimention
-def pca2(data, pc_count = None):
-    return PCA(n_components = 2).fit_transform(data)
 
-# applying the filter on velocity profile
-def TestMedian1(A,B): 
-    V1=scipy.signal.medfilt(A, 601)
-    V2=scipy.signal.medfilt(B, 601)
-    #M3=scipy.signal.medfilt(C, 301)
-    return V1,V2
-#epoching the data and taking the data corresponding to the epoched samples
 def cutEpochs(data,epochs):
     
     epoched_data=[]
@@ -63,13 +47,6 @@ def cutEpochs(data,epochs):
         epoched_data.append(temp)
         
     return epoched_data
-
-# average velocity of the two component X and Y
-def average_velocity(num1,num2):
-    return (num1+ num2)/2
-
-
-#------------------------------------------------------------------------------
 
 #SIMULTANIOUSLY READING AND EXECUTING THE DATA FOR ALL PROCESSING 
 idxmap={'04':'1', '05':'2', '06':'3', '07':'4', '08':'5', '10':'6', '12':'7', '13':'8', '14':'9', '15':'10', '16':'11', '17':'12'}
@@ -146,17 +123,16 @@ for i in range(0,420,35):
 #    file2=each_map[1]
 #file1=mapping_list[0:35][:,0]
 #file2=mapping_list[0:35][:,1] 
-
-final_avgvel_SC_30=[]            
-for listt in SC_30:
+final_avgang_SC_30 = []
+for listt in SC_30[7:12]:
     print (listt)
     for each_map in listt:
-        print ("each_map")
+        
         print (each_map)
         file1=each_map[0]
         file2=each_map[1]
         print(file1 , "    ",file2)
-    #LOADING THE DATA     
+    
         fs=1200 # Sampling rate of the signal
         nyf=fs/2
         position_data= pd.read_csv(file1, sep="\t",skiprows=8)
@@ -178,82 +154,56 @@ for listt in SC_30:
         
         
         #def returnStartEnd(Trg):
+        Trg= position_data[:,13][0:]
         my_list = MyList(Trg)             
         indces=my_list.indices(lambda x: x>1) 
         start=indces[0]
         end=indces[-1]
-            #return indces, start,end
-        #index=returnStartEnd(Trg)
         
-        X= position_data[:,1][0:]*100
-        Y= position_data[:,2][0:]*100
-        Z= position_data[:,3][0:]*100
+        
+        X= position_data[:,14:17][0:]
+        Y= position_data[:,17:20][0:]
+        Z= position_data[:,20:23][0:]
         t=np.linspace(0 ,len(X)/fs,len(X))
+        #time=position_data[:,1][0:]
         X=X[start:end]
         Y=Y[start:end]
         Z=Z[start:end]
+        time=t[start:end]
+        vec1=np.array(X)-np.array(Y)
+        vec2=np.array(Z)-np.array(Y)
         
-        #time=time[start:end]
-         
-        t=t[start:end]
+        angleRaw=vg.angle(vec1, vec2)
         
-      
-        
-        
-        M_smth=TestMedian(X,Y,Z,fs)
-        M_smth=np.asarray(M_smth).transpose()
-        
-        
-        
-        pca_components=pca2(M_smth,pc_count = None)
-        scalar = preprocessing.StandardScaler()
-        standardized_data = scalar.fit_transform(M_smth)
-        # n_components = numbers of dimenstions you want to retain
-        pca = decomposition.PCA(n_components=2)
-        # This line takes care of calculating co-variance matrix, eigen values, eigen vectors and multiplying top 2 eigen vectors with data-matrix X.
-        pca_data = pca.fit_transform(M_smth)
-        
-        '''
-        cumputing the velocity'''
-        V_pc1=diff(pca_data[:,0])/diff(t)
-        V_pc2=diff(pca_data[:,1])/diff(t)
-        
-        
-        VM_smth=TestMedian1(V_pc1,V_pc2)
-        VM_smth=np.asarray(VM_smth).transpose()
-        
-        '''#satrting to take the epoch data and compute the velocity profile corresponding the samples'''
-        
+        ANGLES=testGaussian3(angleRaw) # Window size: 250 ms or 300 samples
+        ANGLES=np.asarray(ANGLES)
+    #    plt.figure()
+    #    plt.plot(time,ANGLES)
+    #    plt.title('angle profile , gassian filter @150 size ')
+    #    plt.xlabel('time(s)')
+    #    plt.ylabel('angles')
+    #    plt.show()
         epochs=epoch_data.to_numpy()
-        
-        
-        
-        
-        epchdV=cutEpochs(VM_smth,epochs)
-        
-        
-    #    sub1_avgvel=[]
-    #    for  
-        rms1=[]
-        rms2=[]    
-        for p in range(len(epchdV)):
-            tempv=epchdV[p]
-            rms1.append(np.sqrt(np.mean((np.asarray(tempv[:,0][0:]))**2)))
-            rms2.append(np.sqrt(np.mean((np.asarray(tempv[:,1][0:]))**2)))
-            
-            
-        AVERAGE1=sum(rms1)/len(rms1)
-        AVERAGE2=sum(rms2)/len(rms2)
-        
-        
-        
-        
-        AVERAGE_VELOCITY=average_velocity(AVERAGE1,AVERAGE2) 
-        final_avgvel_SC_30.append(AVERAGE_VELOCITY)
+        epchdANG=cutEpochs(ANGLES,epochs)
     
-#with open('final_avgvel.csv', 'w') as csv_file:
-#    csv_writer = csv.writer(csv_file, delimiter=',')
-#        
-#    csv_writer.writerows(final_avgvel)   
-#       
-
+    # saving the dataframe 
+    #epchdANG.to_csv(r'D:\Thesis data\polhemus\ang1.csv', index=False, header=False)
+    #    AVGANG= []
+    #    for j in epchdANG:
+    #        AVGANG.append(sum(j)/len(j))
+    #       
+        #rms=np.sqrt(np.mean(AVGANG**2))
+        RMS=[]
+        for k in epchdANG:
+            RMS.append(np.sqrt(np.mean(k**2)))
+        
+        Mean=sum(RMS)/len(RMS)
+        final_avgang_SC_30.append(Mean)    
+#    print(Mean)    
+#    plt.figure()
+#    plt.plot(AVGANG)
+#    plt.title('average epoched angle profile ')
+#    plt.xlabel('samples')
+#    plt.ylabel('angles')
+#    plt.show()
+        
